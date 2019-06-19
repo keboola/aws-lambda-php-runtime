@@ -11,9 +11,9 @@ PHP runtime for AWS Lambda. Based on [akrabat/lambda-php][2].
 
 2. Upload to Amazon using [img2lambda][1]:
 
-        $ img2lambda -i lambda-php-runtime:latest -r eu-west-2 -n lambda-php73
+        $ img2lambda -i lambda-php-runtime:latest -r eu-central-1 -n lambda-php73
 
-    (Change the region if you aren't deploying to eu-west-2).
+    (Change the region if you aren't deploying to eu-central-1).
 
     The layer's ARN is now in `output/layers.json`, put it in ENV variable and reference it in your apps `serverless.yml`.
 
