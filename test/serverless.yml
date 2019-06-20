@@ -1,0 +1,21 @@
+service: aws-lambda-php-runtime-test
+
+provider:
+  name: aws
+  region: ${env:REGION}
+  stage: test
+  runtime: provided
+  cfnRole: "arn:aws:iam::${env:AWS_ACCOUNT_ID}:role/aws-lambda-php-runtime-${env:REGION}-test-sls-cf"
+  role: "arn:aws:iam::${env:AWS_ACCOUNT_ID}:role/aws-lambda-php-runtime-${env:REGION}-test-sls-exec"
+  deploymentBucket:
+    name: "aws-lambda-php-runtime-${env:REGION}-test-deploy"
+
+functions:
+  hello:
+    handler: handler.hello
+    package:
+      include:
+        - handler.php
+    layers:
+      ${file(../output/layers.json)}
+

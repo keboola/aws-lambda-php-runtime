@@ -1,0 +1,13 @@
+{
+  "name": "test",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "devDependencies": {
+    "aws-sdk": "^2.479.0",
+    "jest": "^24.8.0"
+  },
+  "scripts": {
+    "test": "./node_modules/.bin/jest --bail --detectOpenHandles --forceExit test.js"
+  }
+}

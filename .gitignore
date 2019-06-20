@@ -2,3 +2,5 @@
 .docker
 .DS_Store
 output
+test/node_modules
+test/yarn.lock

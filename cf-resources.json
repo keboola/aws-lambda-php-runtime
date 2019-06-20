@@ -1,0 +1,47 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "Resources for aws-lambda-php-runtime",
+  "Parameters": {},
+  "Resources": {
+    "LayerDeploymentPolicy": {
+      "Type": "AWS::IAM::ManagedPolicy",
+      "Properties": {
+        "ManagedPolicyName": { "Fn::Sub": "aws-lambda-php-runtime-${AWS::Region}-deploy" },
+        "PolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Action": [
+                "lambda:GetLayerVersion",
+                "lambda:PublishLayerVersion",
+                "lambda:DeleteLayerVersion",
+                "lambda:ListLayerVersions",
+                "lambda:ListLayers",
+                "lambda:AddLayerVersionPermission",
+                "lambda:GetLayerVersionPolicy",
+                "lambda:RemoveLayerVersionPermission"
+              ],
+              "Resource": "*"
+            }
+          ]
+        }
+      }
+    },
+    "LayerDeploymentGroup": {
+      "Type": "AWS::IAM::Group",
+      "Properties": {
+        "GroupName": { "Fn::Sub": "aws-lambda-php-runtime-${AWS::Region}-deploy" },
+        "ManagedPolicyArns": [
+          { "Ref": "LayerDeploymentPolicy" }
+        ],
+        "Path": "/"
+      }
+    }
+  },
+  "Outputs": {
+    "LayerDeploymentGroup": {
+      "Value": { "Fn::GetAtt": ["LayerDeploymentGroup", "Arn"] }
+    }
+  }
+}

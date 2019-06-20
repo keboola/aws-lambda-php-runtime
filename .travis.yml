@@ -1,0 +1,26 @@
+language: node_js
+node_js:
+  - "10"
+
+services:
+  - docker
+
+jobs:
+  include:
+    - stage: build and deploy
+      before_script:
+        - export AWS_ACCOUNT_ID=${CI_AWS_ACCOUNT_ID}
+        - export AWS_ACCESS_KEY_ID=${CI_AWS_ACCESS_KEY_ID}
+        - export AWS_SECRET_ACCESS_KEY=${CI_AWS_SECRET_ACCESS_KEY}
+        - export REGION=${CI_AWS_REGION}
+        - curl -L "https://github.com/awslabs/aws-lambda-container-image-converter/releases/download/0.3.0/linux-amd64-img2lambda" -o "img2lambda"
+        - chmod a+x ./img2lambda
+        - docker build -t lambda-php-runtime .
+        - yarn global add serverless
+      script:
+        - ./img2lambda -i lambda-php-runtime:latest -r ${CI_AWS_REGION} -n php73
+        - cat output/layers.yaml
+        - cd test
+        - sls deploy
+        - yarn install
+        - yarn test

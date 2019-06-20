@@ -1,0 +1,268 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "Resources for aws-lambda-php-runtime tests",
+  "Parameters": {},
+  "Resources": {
+    "TestDeploymentPolicy": {
+      "Type": "AWS::IAM::ManagedPolicy",
+      "Properties": {
+        "ManagedPolicyName": { "Fn::Sub": "aws-lambda-php-runtime-${AWS::Region}-test-deploy" },
+        "PolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Action": [
+                "cloudformation:CreateStack",
+                "cloudformation:CreateUploadBucket",
+                "cloudformation:DeleteStack",
+                "cloudformation:DescribeStackEvents",
+                "cloudformation:DescribeStackResource",
+                "cloudformation:DescribeStackResources",
+                "cloudformation:ListStackResources",
+                "cloudformation:UpdateStack",
+                "cloudformation:DescribeStacks",
+                "cloudformation:SetStackPolicy"
+              ],
+              "Resource": [
+                { "Fn::Sub": "arn:aws:cloudformation:${AWS::Region}:${AWS::AccountId}:stack/aws-lambda-php-runtime-test-test/*" },
+                { "Fn::Sub": "arn:aws:cloudformation:${AWS::Region}:${AWS::AccountId}:stack/aws-lambda-php-runtime-test-test-*/*" }
+              ]
+            },
+            {
+              "Effect": "Allow",
+              "Action": [
+                "cloudformation:ValidateTemplate"
+              ],
+              "Resource": [
+                "*"
+              ]
+            },
+            {
+              "Effect": "Allow",
+              "Action": [
+                "s3:*"
+              ],
+              "Resource": [
+                { "Fn::Sub": "arn:aws:s3:::aws-lambda-php-runtime-${AWS::Region}-test-deploy" },
+                { "Fn::Sub": "arn:aws:s3:::aws-lambda-php-runtime-${AWS::Region}-test-deploy/*" }
+              ]
+            },
+            {
+              "Effect": "Allow",
+              "Action": [
+                "iam:GetRole",
+                "iam:PassRole"
+              ],
+              "Resource": [
+                { "Fn::GetAtt": ["TestCloudFormationRole", "Arn"] }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    "TestCloudFormationRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "RoleName": { "Fn::Sub": "aws-lambda-php-runtime-${AWS::Region}-test-sls-cf" },
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Service": [
+                  "cloudformation.amazonaws.com"
+                ]
+              },
+              "Action": [
+                "sts:AssumeRole"
+              ]
+            }
+          ]
+        },
+        "Path": "/",
+        "ManagedPolicyArns": [
+          { "Ref": "TestCloudFormationPolicy" }
+        ]
+      }
+    },
+    "TestCloudFormationPolicy": {
+      "Type": "AWS::IAM::ManagedPolicy",
+      "Properties": {
+        "ManagedPolicyName": { "Fn::Sub": "aws-lambda-php-runtime-${AWS::Region}-test-sls-cf" },
+        "Description": { "Fn::Sub": "aws-lambda-php-runtime-${AWS::Region}-test-sls-cf" },
+        "PolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Action": [
+                "s3:GetObject",
+                "s3:GetObjectVersion"
+              ],
+              "Resource": [
+                { "Fn::Sub": "arn:aws:s3:::aws-lambda-php-runtime-${AWS::Region}-*" },
+                { "Fn::Sub": "arn:aws:s3:::aws-lambda-php-runtime-${AWS::Region}-*/*" }
+              ]
+            },
+            {
+              "Effect": "Allow",
+              "Action": [
+                "lambda:*"
+              ],
+              "Resource": [
+                { "Fn::Sub": "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:aws-lambda-php-runtime-test-*" }
+              ]
+            },
+            {
+              "Effect": "Allow",
+              "Action": [
+                "iam:GetRole",
+                "iam:PassRole"
+              ],
+              "Resource": [
+                { "Fn::GetAtt": ["TestLambdaExecutionRole", "Arn"] }
+              ]
+            },
+            {
+              "Effect": "Allow",
+              "Action": [
+                "logs:*"
+              ],
+              "Resource": [
+                { "Fn::Sub": "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/aws-lambda-php-runtime-*" }
+              ]
+            },
+            {
+              "Effect": "Allow",
+              "Action": [
+                "logs:DescribeLogGroups",
+                "s3:ListAllMyBuckets",
+                "lambda:GetLayerVersion"
+              ],
+              "Resource": "*"
+            },
+            {
+              "Effect": "Allow",
+              "Action": [
+                "events:*"
+              ],
+              "Resource": [
+                "*"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    "TestLambdaExecutionRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "RoleName": { "Fn::Sub": "aws-lambda-php-runtime-${AWS::Region}-test-sls-exec" },
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Service": [
+                  "lambda.amazonaws.com"
+                ]
+              },
+              "Action": [
+                "sts:AssumeRole"
+              ]
+            }
+          ]
+        },
+        "Path": "/",
+        "ManagedPolicyArns": [],
+        "Policies": [
+          {
+            "PolicyName": { "Fn::Sub": "aws-lambda-php-runtime-${AWS::Region}-test-sls-exec" },
+            "PolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "logs:CreateLogGroup",
+                    "logs:CreateLogStream",
+                    "logs:PutLogEvents"
+                  ],
+                  "Resource": { "Fn::Sub": "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/$aws-lambda-php-runtime-*:*:*" }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "FunctionalTestPolicy": {
+      "Type": "AWS::IAM::ManagedPolicy",
+      "Properties": {
+        "ManagedPolicyName": { "Fn::Sub": "aws-lambda-php-runtime-${AWS::Region}-tests" },
+        "PolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Action": [
+                "lambda:*"
+              ],
+              "Resource": [
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:aws:lambda:",
+                      { "Ref": "AWS::Region" },
+                      ":",
+                      { "Ref": "AWS::AccountId" },
+                      ":function:",
+                      "aws-lambda-php-runtime-*"
+                    ]
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    "TestDeploymentGroup": {
+      "Type": "AWS::IAM::Group",
+      "Properties": {
+        "GroupName": { "Fn::Sub": "aws-lambda-php-runtime-${AWS::Region}-test-deploy" },
+        "ManagedPolicyArns": [
+          { "Ref": "TestDeploymentPolicy" },
+          { "Ref": "TestCloudFormationPolicy" },
+          { "Ref": "FunctionalTestPolicy" }
+        ],
+        "Path": "/"
+      }
+    },
+    "TestDeploymentS3Bucket": {
+      "Type": "AWS::S3::Bucket",
+      "Properties": {
+        "BucketName": { "Fn::Sub": "aws-lambda-php-runtime-${AWS::Region}-test-deploy" },
+        "LifecycleConfiguration": {
+          "Rules": [
+            {
+              "Id": "RemovalRule",
+              "Status": "Enabled",
+              "ExpirationInDays": "30"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "Outputs": {
+    "TestDeploymentGroup": {
+      "Value": { "Fn::GetAtt": ["TestDeploymentGroup", "Arn"] }
+    }
+  }
+}

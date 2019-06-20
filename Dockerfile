@@ -1,7 +1,7 @@
 # Build PHP in the Lambda container
 FROM amazonlinux:2017.03.1.20170812 as builder
 
-ARG php_version="7.3.1"
+ARG php_version="7.3.6"
 
 RUN sed -i 's;^releasever.*;releasever=2017.03;;' /etc/yum.conf && \
     yum clean all && \
@@ -20,11 +20,11 @@ RUN sed -i 's;^releasever.*;releasever=2017.03;;' /etc/yum.conf && \
                 unzip \
                 git
 
-RUN curl -sL https://github.com/php/php-src/archive/php-${php_version}.tar.gz | tar -xvz && \
+RUN curl -sL https://github.com/php/php-src/archive/php-${php_version}.tar.gz | tar -xz && \
     cd php-src-php-${php_version} && \
-    ./buildconf --force && \
-    ./configure --prefix=/opt/php/ --with-openssl --with-curl --with-zlib --without-pear --enable-bcmath --with-bz2 --enable-mbstring && \
-    make install && \
+    ./buildconf --force > /dev/null && \
+    ./configure --prefix=/opt/php/ --with-openssl --with-curl --with-zlib --without-pear --enable-bcmath --with-bz2 --enable-mbstring > /dev/null && \
+    make install > /dev/null && \
     /opt/php/bin/php -v && \
     curl -sS https://getcomposer.org/installer | /opt/php/bin/php -- --install-dir=/opt/php/bin/ --filename=composer
 
