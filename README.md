@@ -20,3 +20,7 @@ PHP runtime for AWS Lambda. Based on [akrabat/lambda-php][2].
 [1]: https://github.com/awslabs/aws-lambda-container-image-converter
 [2]: https://github.com/akrabat/lambda-php/tree/master/php-runtime
 
+
+## License
+
+MIT licensed, see [LICENSE](./LICENSE) file.
